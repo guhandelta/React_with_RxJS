@@ -25,7 +25,7 @@ const countDown$ = interval(1000).pipe( //interval()- emits an event as per the 
   //- reduce() given only the total
   takeWhile(time => time > 0), // Emits values emitted by the source Observable so long as each value- 
   //- satisfies the given condition, and then completes as soon as this condition is not satisfied.
-)
+);
 
 // Subject is created to pass in the snooze action into the countDown observable to reset it
 const action$ = new Subject(); //Subjects have the interfaces of both the observers and observables-
@@ -33,13 +33,11 @@ const action$ = new Subject(); //Subjects have the interfaces of both the observ
 //- pushing values into them 
 // action$.subscribe(console.log);
 
+// Takes in a callback, which returns an observable, whenever that observable emits, it will cause the-
+//- observable that just completed, to repeat itself
 const observable$ = concat(countDown$, of('Wake up!!! ⏰⏰⏰')).pipe(
-  // Takes in a callback, which returns an observable, whenever that observable emits, it will cause the-
-  //- observable that just completed, to repeat itself
-  repeatWhen(() => {
-    return action$
-  })
-)
+  repeatWhen(() => action$)
+);
 // concat()- Creates an output Observable which sequentially emits all values from given Observable- 
 // -and then moves on to the next || of()- Converts the arguments to an observable sequence.
 
