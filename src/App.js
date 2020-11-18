@@ -20,12 +20,19 @@ const countDown$ = interval(1000).pipe( //interval()- emits an event as per the 
 //- inner state, it will return it synchronously 
 
   // Creating an initial state in the observable
-  startWith(10), //will start with 0 and waits for a second to emit the next value
+  startWith(60), //will start with 0 and waits for a second to emit the next value
   scan(time => time - 1), //scan() is quite like reduce(), scan() shows all the values emitted, while-
   //- reduce() given only the total
   takeWhile(time => time > 0), // Emits values emitted by the source Observable so long as each value- 
   //- satisfies the given condition, and then completes as soon as this condition is not satisfied.
 )
+
+// Subject is created to pass in the snooze action into the countDown observable to reset it
+const action$ = new Subject(); //Subjects have the interfaces of both the observers and observables-
+//- They can also be used as an observable. They also have next(), error() & complete(), which allows-
+//- pushing values into them 
+action$.subscribe(console.log);
+
 const observable$ = concat(countDown$, of('Wake up!!! ⏰⏰⏰'));
 // concat()- Creates an output Observable which sequentially emits all values from given Observable- 
 // -and then moves on to the next || of()- Converts the arguments to an observable sequence.
@@ -44,7 +51,9 @@ function App() {
   return (
     <>
         <h3>&emsp;&emsp;&emsp;&emsp;Alarm Clock</h3>
-        <div className="display">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{state}</div>
+        <div className="display">&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;{state}</div>
+        &emsp;&emsp;&emsp;&emsp;&nbsp;
+        <button className="snooze" onClick={()=> action$.next('Snooze!!')}>Snooze</button>
     </>
   );
 }
