@@ -20,11 +20,13 @@ const countDown$ = interval(1000).pipe( //interval()- emits an event as per the 
 //- inner state, it will return it synchronously 
 
   // Creating an initial state in the observable
-  startWith(60), //will start with 0 and waits for a second to emit the next value
+  startWith(6), //will start with 0 and waits for a second to emit the next value
   scan(time => time - 1), //scan() is quite like reduce(), scan() shows all the values emitted, while-
   //- reduce() given only the total
   takeWhile(time => time > 0), // Emits values emitted by the source Observable so long as each value- 
   //- satisfies the given condition, and then completes as soon as this condition is not satisfied.
+).pipe(
+  share() // Consecutive snooze actions are ignored until the Observable has completed and is ready
 )
 
 // Subject is created to pass in the snooze action into the countDown observable to reset it
