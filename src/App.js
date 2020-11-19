@@ -7,7 +7,8 @@ import {
   scan,
   startWith,
   repeatWhen,
-  share
+  share,
+  filter
  } from 'rxjs/operators'
 import './App.css';
 
@@ -33,18 +34,24 @@ const countDown$ = interval(1000).pipe( //interval()- emits an event as per the 
 const action$ = new Subject(); //Subjects have the interfaces of both the observers and observables-
 //- They can also be used as an observable. They also have next(), error() & complete(), which allows-
 //- pushing values into them 
-// action$.subscribe(console.log);
+const snooze$ = action$.pipe(filter(action => action === 'snooze'));
+const dismiss$ = action$.pipe(filter(action => action === 'dismiss'));
 
-const observable$ = concat(countDown$, of('Wake up!!! ⏰⏰⏰')).pipe(
+const snoozableAlarm$ = concat(countDown$, of('Wake up!!! ⏰⏰⏰')).pipe(
   // Takes in a callback, which returns an observable, whenever that observable emits, it will cause the-
   //- observable that just completed, to repeat itself
   repeatWhen(() => {
-    return action$
+    return snooze$
   })
-)
-// concat()- Creates an output Observable which sequentially emits all values from given Observable- 
-// -and then moves on to the next || of()- Converts the arguments to an observable sequence.
-
+)// concat()- Creates an output Observable which sequentially emits all values from given Observable- 
+  // -and then moves on to the next || of()- Converts the arguments to an observable sequence.
+  
+  const observable$ = concat(
+    snoozableAlarm$.pipe(takeUntil(dismiss$)), 
+    // takeUntil() will run the complete(), when the action provided happens => snooze$ would be disabled
+    of("Have a Great Day!!😁👍")
+  );
+  
 function App() {
   const [ state, setState ] = useState();
   useEffect(()=>{
@@ -61,7 +68,8 @@ function App() {
         <h3>&emsp;&emsp;&emsp;&emsp;Alarm Clock</h3>
         <div className="display">&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;{state}</div>
         &emsp;&emsp;&emsp;&emsp;&nbsp;
-        <button className="snooze" onClick={()=> action$.next('Snooze!!')}>Snooze</button>
+        <button className="snooze" onClick={()=> action$.next('snooze')}>Snooze</button>
+        &emsp;&emsp;<button className="dismiss" onClick={()=> action$.next('dismiss')}>Dismiss</button>
     </>
   );
 }
